@@ -6,6 +6,14 @@ import moment from 'moment';
 import { SERVICES_COLORS } from './services-colors.js';
 import { HTML_PAGE } from './html-page.js';
 
+type ActorInput = {
+    awsAccessKeyId: string;
+    awsAccessSecret: string;
+    awsRegion: string;
+    slackBotToken: string;
+    slackChannel: string;
+}
+
 const prettierResultsToKeyValue = (groups: AWS.CostExplorer.Groups) => {
     const result = {} as { [key: string]: number };
     groups.forEach((item) => {
@@ -19,10 +27,24 @@ const prettierResultsToKeyValue = (groups: AWS.CostExplorer.Groups) => {
 await Actor.main(async () => {
     log.info('Starting...');
 
+    const input = await Actor.getInput<ActorInput>();
+    if (!input) {
+        throw new Error('Missing input');
+    }
+
+    // NOTE: The default value are for local testing.
+    const {
+        awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID,
+        awsAccessSecret = process.env.AWS_ACCESS_SECRET,
+        awsRegion = 'us-east-1',
+        slackBotToken = process.env.SLACK_BOT_TOKEN,
+        slackChannel,
+    } = input;
+
     const explorer = new AWS.CostExplorer({
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_ACCESS_SECRET,
-        region: 'us-east-1',
+        accessKeyId: awsAccessKeyId,
+        secretAccessKey: awsAccessSecret,
+        region: awsRegion,
     });
 
     const yesterdayParams = {
@@ -76,7 +98,7 @@ await Actor.main(async () => {
                 if (!group.Keys) throw new Error('No service name');
                 let service = group.Keys[0];
                 // The MongoDB service got renamed, this unifies the two services in one chart dataset
-                if (service === 'MongoDB Atlas (Pay as You Go)') service='MongoDB Atlas (pay-as-you-go)';
+                if (service === 'MongoDB Atlas (Pay as You Go)') service = 'MongoDB Atlas (pay-as-you-go)';
                 const costs = parseFloat(group.Metrics?.UnblendedCost?.Amount ?? '0').toFixed(2);
                 if (datasets[service]) {
                     datasets[service].data.push(costs);
@@ -140,11 +162,9 @@ await Actor.main(async () => {
 
     const imageUrl = `https://api.apify.com/v2/key-value-stores/${Actor.getEnv().defaultKeyValueStoreId}/records/screenshot.jpg?disableRedirect=true`;
 
-    const slackBotToken = process.env.SLACK_BOT_TOKEN;
     const bot = new WebClient(slackBotToken);
     await bot.chat.postMessage({
-        channel: 'C0115RVFQ3B', // #eng-alerts
-        // channel: 'C30TZDMKM', // test
+        channel: slackChannel,
         // @ts-ignore
         response_type: 'in_channel',
         username: 'Yesterday AWS costs',

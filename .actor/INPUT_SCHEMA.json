@@ -1,0 +1,53 @@
+{
+  "title": "AWS costs to Slack",
+  "type": "object",
+  "schemaVersion": 1,
+  "description": "AWS costs to Slack input",
+  "properties": {
+    "awsAccessKeyId": {
+      "sectionCaption": "AWS",
+      "sectionDescription": "AWS credentials and region",
+      "type": "string",
+      "title": "AWS Access Key ID",
+      "description": "Your AWS Access Key ID.",
+      "editor": "textfield",
+      "isSecret": true
+    },
+    "awsAccessSecret": {
+      "type": "string",
+      "title": "AWS Access Secret",
+      "description": "Your AWS Access Secret.",
+      "editor": "textfield",
+      "isSecret": true
+    },
+    "awsRegion": {
+      "type": "string",
+      "title": "AWS Region",
+      "description": "The AWS region where your resources are located.",
+      "default": "us-east-1",
+      "editor": "textfield"
+    },
+    "slackBotToken": {
+      "sectionCaption": "Slack",
+      "sectionDescription": "Slack bot integration configuration",
+      "type": "string",
+      "title": "Slack Bot Token",
+      "description": "Token for your Slack bot integration.",
+      "editor": "textfield",
+      "isSecret": true
+    },
+    "slackChannel": {
+      "type": "string",
+      "title": "Slack Channel",
+      "description": "The Slack channel to send notifications to.",
+      "editor": "textfield"
+    }
+  },
+  "required": [
+    "awsAccessKeyId",
+    "awsAccessSecret",
+    "awsRegion",
+    "slackBotToken",
+    "slackChannel"
+  ]
+}
