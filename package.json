@@ -6,11 +6,11 @@
   "license": "ISC",
   "dependencies": {
     "@slack/web-api": "latest",
-    "apify": "latest",
     "aws-sdk": "latest",
-    "crawlee": "latest",
     "moment": "latest",
-    "puppeteer": "^21.5.2"
+    "apify": "^3.1.10",
+    "crawlee": "^3.5.4",
+    "puppeteer": "*"
   },
   "devDependencies": {
     "@apify/eslint-config-ts": "^0.3.0",
