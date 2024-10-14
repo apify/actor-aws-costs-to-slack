@@ -62,6 +62,7 @@ await Actor.main(async () => {
         Metrics: ['UnblendedCost'],
     };
 
+    log.info('Getting costs from AWS...');
     const yesterdayStatsResponse = await explorer.getCostAndUsage(yesterdayParams).promise();
     if (!yesterdayStatsResponse?.ResultsByTime || !yesterdayStatsResponse.ResultsByTime[0].Groups) {
         throw new Error('No yesterday cost results');
@@ -147,6 +148,7 @@ await Actor.main(async () => {
         },
     };
 
+    log.info('Generating chart...');
     const html = HTML_PAGE.replace('{chart}', JSON.stringify(chart));
     await Actor.setValue('chart', html, {
         contentType: 'text/html',
@@ -158,10 +160,13 @@ await Actor.main(async () => {
     await sleep(10000);
     const image = await page.screenshot({ fullPage: true });
     await browser.close();
+
+    log.info('Uploading chart to Apify...');
     await Actor.setValue('screenshot.jpg', Buffer.from(image), { contentType: 'image/jpeg' });
 
     const imageUrl = `https://api.apify.com/v2/key-value-stores/${Actor.getEnv().defaultKeyValueStoreId}/records/screenshot.jpg?disableRedirect=true`;
 
+    log.info('Posting to Slack...');
     const bot = new WebClient(slackBotToken);
     await bot.chat.postMessage({
         channel: slackChannel,
@@ -171,5 +176,5 @@ await Actor.main(async () => {
         text: `${Object.keys(yesterdayStats).map((key) => `${key} -> *$${yesterdayStats[key]}*`).join('\n')}\n\nChart -> ${imageUrl}`,
     });
 
-    log.info('Done!');
+    log.info('We are done!');
 });
