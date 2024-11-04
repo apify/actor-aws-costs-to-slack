@@ -17,7 +17,7 @@ type ActorInput = {
 const prettierResultsToKeyValue = (groups: AWS.CostExplorer.Groups) => {
     const result = {} as { [key: string]: number };
     groups.forEach((item) => {
-        const costs = parseFloat(item.Metrics?.UnblendedCost?.Amount || '0');
+        const costs = parseFloat(item.Metrics?.AmortizedCost?.Amount || '0');
         const service = item.Keys ? item.Keys[0] : 'Unknown';
         if (costs > 5) result[service] = Math.round(costs);
     });
@@ -59,7 +59,7 @@ await Actor.main(async () => {
                 Key: 'SERVICE',
             },
         ],
-        Metrics: ['UnblendedCost'],
+        Metrics: ['AmortizedCost'],
     };
 
     log.info('Getting costs from AWS...');
@@ -81,7 +81,7 @@ await Actor.main(async () => {
             },
         ],
         Granularity: 'DAILY',
-        Metrics: ['UnblendedCost'],
+        Metrics: ['AmortizedCost'],
     };
     const lastMonthResponse = await explorer.getCostAndUsage(paramsMonth).promise();
     if (!lastMonthResponse.ResultsByTime) {
@@ -100,7 +100,7 @@ await Actor.main(async () => {
                 let service = group.Keys[0];
                 // The MongoDB service got renamed, this unifies the two services in one chart dataset
                 if (service === 'MongoDB Atlas (Pay as You Go)') service = 'MongoDB Atlas (pay-as-you-go)';
-                const costs = parseFloat(group.Metrics?.UnblendedCost?.Amount ?? '0').toFixed(2);
+                const costs = parseFloat(group.Metrics?.AmortizedCost?.Amount ?? '0').toFixed(2);
                 if (datasets[service]) {
                     datasets[service].data.push(costs);
                     // datasets[service].backgroundColor.push(colors[i]);
