@@ -164,7 +164,7 @@ await Actor.main(async () => {
     log.info('Uploading chart to Apify...');
     await Actor.setValue('screenshot.jpg', Buffer.from(image), { contentType: 'image/jpeg' });
 
-    const imageUrl = `https://api.apify.com/v2/key-value-stores/${Actor.getEnv().defaultKeyValueStoreId}/records/screenshot.jpg?disableRedirect=true`;
+    const imageUrl = `https://api.apify.com/v2/key-value-stores/${Actor.getEnv().defaultKeyValueStoreId}/records/screenshot.jpg`;
 
     log.info('Posting to Slack...');
     const bot = new WebClient(slackBotToken);
