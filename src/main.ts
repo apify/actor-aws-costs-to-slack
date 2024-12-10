@@ -93,8 +93,8 @@ await Actor.main(async () => {
         // Filter out tax costs
         let unknownService = 1;
         result.Groups
-            // Filter out tax costs
-            .filter((group) => (group.Keys && group.Keys[0] !== 'Tax'))
+            // Filter out tax costs and Bright Data costs(residential proxies)
+            .filter((group) => (group.Keys && group.Keys[0] !== 'Tax' && group.Keys[0] !== 'Bright Data Enterprise non metered'))
             .forEach((group) => {
                 if (!group.Keys) throw new Error('No service name');
                 let service = group.Keys[0];
